@@ -4,8 +4,11 @@ const prompt = pkg;
 prompt.start();
 
 const getUserInput = async (desc) => {
-  const { input } = await prompt.get({ properties: { input: { description: desc } } });
-  console.log('\n');
+  const { input } = await prompt.get({ 
+    properties: { 
+      input: { description: desc } 
+    } 
+  });
   agent.handleIssue(input, getUserInput);
 }
 
