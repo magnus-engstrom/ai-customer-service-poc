@@ -1,0 +1,17 @@
+{
+  "name": "ai-cs",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "author": "Magnus Engström",
+  "license": "MIT",
+  "dependencies": {
+    "openai": "^4.11.1",
+    "prompt": "^1.3.0"
+  }
+}
