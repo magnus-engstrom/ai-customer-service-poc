@@ -2,7 +2,7 @@ let customerData = {
   accountID: 12345,
   firstName: 'Magnus',
   lastName: 'Engström',
-  phoneNumber: '070-123 45 67',
+  phoneNumber: '',
   email: 'magnus@domain.com',
 }
 
@@ -78,7 +78,8 @@ const avaibleFunctions = [
   },
 ]
 const getCustomerData = (accountID) => {
-  console.log('### System message: Agent accessed user account data.');  
+  // console.log('### System message: Agent accessed user account data.');
+  console.log("\x1b[90m", 'I bakgrunden: Agenten hämtar kundens kontaktuppgifter.'); 
   if (customerData.accountID === accountID) {
     return JSON.stringify(customerData);
   }
@@ -86,27 +87,30 @@ const getCustomerData = (accountID) => {
 }
 
 const serviceStatus = (_) => {
-  console.log('### System message: Agent checked current status of services.');
+  console.log("\x1b[90m", 'I bakgrunden: Agenten hämtar statusinformation om tjänster och produkter.');
   return JSON.stringify({
-    'login': 'service is restricted resulting in long response times.',
+    'login': 'service is restricted on the website resulting in long response times.',
     'website': 'service is running and available',
-    'mobile app': 'service is running and available'
+    'mobile app': 'service is running and available',
+    'print newspaper': 'arriving late due to snow storm',
   });
 }
 
 const escalateIssue = (accountID, issue, typeOfContact) => {
-  console.log('\n');
-  console.log('### System message: An issue was filed by the agent.', {
-    'kund-id': accountID, 
-    'ärende': issue, 
-    'kontaktväg': typeOfContact
-  });
-  console.log('\n');
+  // console.log('\n');
+  // console.log('### System message: An issue was filed by the agent.', {
+  //   'kund-id': accountID, 
+  //   'ärende': issue, 
+  //   'kontaktväg': typeOfContact
+  // });
+  // console.log('\n');
+  console.log("\x1b[90m", 'I bakgrumden: Agenten lägger ett ärende till en medarbetare.');
   return 'The issue was registrered successfully';
 }
 
 const updateContactInformation = (field, value) => {
-  console.log('### System message: Agent updated account.', field, value); 
+  // console.log('### System message: Agent updated account.', field, value); 
+  console.log("\x1b[90m", 'I bakgrunden: Agenten uppdaterar fält i kundens kontaktuppgifter.');
   customerData[field] = value;
   return 'The contact information is updated';
 }

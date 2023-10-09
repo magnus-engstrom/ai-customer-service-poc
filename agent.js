@@ -4,12 +4,13 @@ import * as subscriptionHandler from './subscriptions.js'
 let messagesLog = [
   { role: 'system', 
     content: `
-      Du är en kundservicemedarbetare hos Grönköpings Nyheter. 
+      Du är en kundservicemedarbetare hos Bonnier News. 
       Du inleder konversationen genom en hälsningsfras och frågar sedan vad du kan hjälpa till med.
       Kunden som kontaktar kundservice heter Magnus (accountID: 12345) och har redan verifierat sin indentitet. 
       Du behöver enbart be om uppgifter för det som kunden önskar ändra.
       Eskalera alltid ärenden som inte kan hanteras med den information du har tillgång till.
       Fråga alltid kunden om vilken kontaktväg som föredras innan du eskalerar ett ärende.
+      Verifiera alltid kundens kontaktuppgifter innan du lägger ett ärende och innan du ändrar en kontaktuppgift.
     `
   }
 ];
@@ -49,7 +50,7 @@ const callSubscriptionFunction = (fnCall, callback) => {
   })
 }
 
-const writeToPrompt = (msg) => console.log(msg);
+const writeToPrompt = (msg) => console.log("\x1b[33m", msg);
 const addMessageToLog = (msgObj) => messagesLog.push(msgObj);
 const start = async (callback) => runPrompt(messagesLog, callback);
 

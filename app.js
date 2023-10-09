@@ -9,6 +9,7 @@ const getUserInput = async (desc) => {
       input: { description: desc } 
     } 
   });
+  console.log('');
   agent.handleIssue(input, getUserInput);
 }
 
