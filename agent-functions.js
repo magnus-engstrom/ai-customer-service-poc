@@ -6,19 +6,23 @@ let customerData = {
   email: 'magnus@domain.com',
 }
 
-const avaibleFunctions = [
+const schema = [
   {
     "name": "getCustomerData",
     "description": "Access the data describing the customer. Returns a JSON object containing the customer information.",
     "parameters": {
         "type": "object",
         "properties": {
-            "accountID": {
-                "type": "integer",
-                "description": "The customer account ID.",
-            },
+          "accountID": {
+            "type": "integer",
+            "description": "The customer account ID.",
+          },
+          "reason": {
+            "type": "string",
+            "description": "The motivation and reason behind calling this function.",
+          },
         },
-        "required": ["accountID"],
+        "required": ["accountID", "reason"],
     },
   },
   {
@@ -27,16 +31,20 @@ const avaibleFunctions = [
     "parameters": {
         "type": "object",
         "properties": {
-            "field": {
-                "type": "string",
-                "description": "A contact information field as represented by the JSON object returned from getCustomerData().",
-            },
-            "value": {
+          "field": {
               "type": "string",
-              "description": "The new contact information for updating a contact field connected to an account.",
+              "description": "A contact information field as represented by the JSON object returned from getCustomerData().",
+          },
+          "value": {
+            "type": "string",
+            "description": "The new contact information for updating a contact field connected to an account.",
+          },
+          "reason": {
+            "type": "string",
+            "description": "The motivation and reason behind calling this function.",
           },
         },
-        "required": ["field", "value"],
+        "required": ["field", "value", "reason"],
     },
   },
   {
@@ -46,8 +54,8 @@ const avaibleFunctions = [
       "type": "object",
       "properties": {
         "accountID": {
-            "type": "integer",
-            "description": "The customer account ID.",
+          "type": "integer",
+          "description": "The customer account ID.",
         },
         "issue": {
           "type": "string",
@@ -58,8 +66,12 @@ const avaibleFunctions = [
           "enum": ["phone", "email"],
           "description": "The prefered way the customer would like to be contacted regarding this issue.",
         },
+        "reason": {
+          "type": "string",
+          "description": "The motivation and reason behind calling this function.",
+        },
       },
-      "required": ["accountID", "issue", "typeOfContact"],
+      "required": ["accountID", "issue", "typeOfContact", "reason"],
     },
   },
   {
@@ -72,13 +84,16 @@ const avaibleFunctions = [
           "type": "integer",
           "description": "The customer account ID.",
         },
+        "reason": {
+          "type": "string",
+          "description": "The motivation and reason behind calling this function.",
+        },
       },
-      "required": [],
+      "required": ["accountID", "reason"],
   },
   },
 ]
-const getCustomerData = (accountID) => {
-  // console.log('### System message: Agent accessed user account data.');
+const getCustomerData = (accountID, _) => {
   console.log("\x1b[90m", 'I bakgrunden: Agenten hämtar kundens kontaktuppgifter.'); 
   if (customerData.accountID === accountID) {
     return JSON.stringify(customerData);
@@ -86,7 +101,7 @@ const getCustomerData = (accountID) => {
   return null;
 }
 
-const serviceStatus = (_) => {
+const serviceStatus = (id, _) => {
   console.log("\x1b[90m", 'I bakgrunden: Agenten hämtar statusinformation om tjänster och produkter.');
   return JSON.stringify({
     'login': 'service is restricted on the website resulting in long response times.',
@@ -96,23 +111,15 @@ const serviceStatus = (_) => {
   });
 }
 
-const escalateIssue = (accountID, issue, typeOfContact) => {
-  // console.log('\n');
-  // console.log('### System message: An issue was filed by the agent.', {
-  //   'kund-id': accountID, 
-  //   'ärende': issue, 
-  //   'kontaktväg': typeOfContact
-  // });
-  // console.log('\n');
+const escalateIssue = (accountID, issue, typeOfContact, _) => {
   console.log("\x1b[90m", 'I bakgrumden: Agenten lägger ett ärende till en medarbetare.');
   return 'The issue was registrered successfully';
 }
 
-const updateContactInformation = (field, value) => {
-  // console.log('### System message: Agent updated account.', field, value); 
+const updateContactInformation = (field, value, _) => {
   console.log("\x1b[90m", 'I bakgrunden: Agenten uppdaterar fält i kundens kontaktuppgifter.');
   customerData[field] = value;
   return 'The contact information is updated';
 }
 
-export { getCustomerData, updateContactInformation, escalateIssue, serviceStatus, avaibleFunctions };
+export { getCustomerData, updateContactInformation, escalateIssue, serviceStatus, schema };

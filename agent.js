@@ -1,61 +1,74 @@
 import OpenAI from 'openai';
-import * as subscriptionHandler from './subscriptions.js'
+import * as agentFunctions from './agent-functions.js'
+import * as Observer from './observer.js'
+
+const { OPENAI_KEY } = process.env;
+const openai = new OpenAI({ apiKey: OPENAI_KEY });
 
 let messagesLog = [
   { role: 'system', 
     content: `
       Du är en kundservicemedarbetare hos Bonnier News. 
       Du inleder konversationen genom en hälsningsfras och frågar sedan vad du kan hjälpa till med.
-      Kunden som kontaktar kundservice heter Magnus (accountID: 12345) och har redan verifierat sin indentitet. 
+      Kunden som kontaktar kundservice har accountID 12345 och har redan verifierat sin indentitet. 
       Du behöver enbart be om uppgifter för det som kunden önskar ändra.
       Eskalera alltid ärenden som inte kan hanteras med den information du har tillgång till.
       Fråga alltid kunden om vilken kontaktväg som föredras innan du eskalerar ett ärende.
       Verifiera alltid kundens kontaktuppgifter innan du lägger ett ärende och innan du ändrar en kontaktuppgift.
+      Hälsa kunden med kundens förnamn i starten av konversationen. Slå upp namnet genom att använda getCustomerData().
+    `
+  },
+  { role: 'system', 
+    content: `
+      Hälsa kunden med kundens förnamn i starten av konversationen. Slå upp namnet genom att använda getCustomerData().
     `
   }
 ];
 
-const { OPENAI_KEY } = process.env;
-const openai = new OpenAI({ apiKey: OPENAI_KEY });
+let giveOutput = undefined;
+let requireInput = undefined;
 
-const runPrompt = async (messages, callback) => {
+const runPrompt = async () => {
   const response = await openai.chat.completions.create({
     model: 'gpt-4',
-    messages: messages,
-    functions: subscriptionHandler.avaibleFunctions,
-    function_call: "auto",
+    messages: messagesLog,
+    functions: agentFunctions.schema,
+    function_call: 'auto',
     stream: false,
   });
   const responseMessage = response["choices"][0]["message"];
   addMessageToLog(responseMessage);
   if (responseMessage.function_call) {
-    callSubscriptionFunction(responseMessage.function_call, callback);
+    callSubscriptionFunction(responseMessage.function_call);
+    runPrompt();
   } else {
-    writeToPrompt(responseMessage['content']);
-    callback();
+    giveOutput(responseMessage['content']);
+    const shouldContinue = await Observer.assertQuality(messagesLog);
+    if (!shouldContinue) return;
+    requireInput((userMsg) => {
+      addMessageToLog({ role: 'user', content: userMsg });
+      runPrompt();
+    });
   }
 }
 
-const callSubscriptionFunction = (fnCall, callback) => {
+const callSubscriptionFunction = (fnCall) => {
   const fnName = fnCall.name;
-  subscriptionHandler.avaibleFunctions.filter(f => f.name === fnName).forEach((fn) => {
+  agentFunctions.schema.filter(f => f.name === fnName).forEach((fn) => {
     const fnArgs = JSON.parse(fnCall.arguments);
-    const fnResponse = subscriptionHandler[fn.name](...Object.values(fnArgs));
+    const fnResponse = agentFunctions[fn.name](...Object.values(fnArgs));
     addMessageToLog({
       "role": "function",
       "name": fnName,
       "content": fnResponse,
     });
-    runPrompt(messagesLog, callback);
   })
 }
 
-const writeToPrompt = (msg) => console.log("\x1b[33m", msg);
 const addMessageToLog = (msgObj) => messagesLog.push(msgObj);
-const start = async (callback) => runPrompt(messagesLog, callback);
-
-const handleIssue = async (issueDescription, callback) => {
-  addMessageToLog({ role: 'user', content: issueDescription });
-  runPrompt(messagesLog, callback);
+const init = async (outputFunc, inputFucn) => {
+  giveOutput = outputFunc;
+  requireInput = inputFucn;
+  runPrompt(outputFunc, inputFucn);
 }
-export { start, handleIssue };
+export { init };

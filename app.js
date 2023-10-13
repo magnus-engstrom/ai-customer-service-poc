@@ -3,14 +3,13 @@ import pkg from 'prompt';
 const prompt = pkg;
 prompt.start();
 
-const getUserInput = async (desc) => {
-  const { input } = await prompt.get({ 
-    properties: { 
-      input: { description: desc } 
-    } 
-  });
-  console.log('');
-  agent.handleIssue(input, getUserInput);
-}
+const getUserInput = async (callback) => {
+  const { input } = await prompt.get({ properties: { input: {} } });
+  callback(input);
+};
 
-agent.start(getUserInput);
+const dispayAgentOutput = async (msg) => {
+  console.log("\x1b[33m", msg);
+};
+
+agent.init(dispayAgentOutput, getUserInput);
