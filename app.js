@@ -4,6 +4,7 @@ const prompt = pkg;
 prompt.start();
 
 const getUserInput = async (callback) => {
+  console.log("\x1b[0m","");
   const { input } = await prompt.get({ properties: { input: {} } });
   callback(input);
 };

@@ -5,6 +5,8 @@ import * as Observer from './observer.js'
 const { OPENAI_KEY } = process.env;
 const openai = new OpenAI({ apiKey: OPENAI_KEY });
 
+const useObserver = true;
+
 let messagesLog = [
   { role: 'system', 
     content: `
@@ -43,8 +45,10 @@ const runPrompt = async () => {
     runPrompt();
   } else {
     giveOutput(responseMessage['content']);
-    const shouldContinue = await Observer.assertQuality(messagesLog);
-    if (!shouldContinue) return;
+    if (useObserver) {
+      const shouldContinue = await Observer.assertQuality(messagesLog);
+      if (!shouldContinue) return;
+    }
     requireInput((userMsg) => {
       addMessageToLog({ role: 'user', content: userMsg });
       runPrompt();

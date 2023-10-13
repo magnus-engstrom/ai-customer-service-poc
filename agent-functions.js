@@ -6,6 +6,8 @@ let customerData = {
   email: 'magnus@domain.com',
 }
 
+const showReasoning = true;
+
 const schema = [
   {
     "name": "getCustomerData",
@@ -93,16 +95,18 @@ const schema = [
   },
   },
 ]
-const getCustomerData = (accountID, _) => {
+const getCustomerData = (accountID, reason) => {
   console.log("\x1b[90m", 'I bakgrunden: Agenten hämtar kundens kontaktuppgifter.'); 
+  logReasoning(reason);
   if (customerData.accountID === accountID) {
     return JSON.stringify(customerData);
   }
   return null;
 }
 
-const serviceStatus = (id, _) => {
+const serviceStatus = (id, reason) => {
   console.log("\x1b[90m", 'I bakgrunden: Agenten hämtar statusinformation om tjänster och produkter.');
+  logReasoning(reason);
   return JSON.stringify({
     'login': 'service is restricted on the website resulting in long response times.',
     'website': 'service is running and available',
@@ -111,15 +115,22 @@ const serviceStatus = (id, _) => {
   });
 }
 
-const escalateIssue = (accountID, issue, typeOfContact, _) => {
+const escalateIssue = (accountID, issue, typeOfContact, reason) => {
   console.log("\x1b[90m", 'I bakgrumden: Agenten lägger ett ärende till en medarbetare.');
+  logReasoning(reason);
   return 'The issue was registrered successfully';
 }
 
-const updateContactInformation = (field, value, _) => {
+const updateContactInformation = (field, value, reason) => {
   console.log("\x1b[90m", 'I bakgrunden: Agenten uppdaterar fält i kundens kontaktuppgifter.');
+  logReasoning(reason);
   customerData[field] = value;
   return 'The contact information is updated';
+}
+
+const logReasoning = (reason) => {
+  if (!showReasoning) return;
+  console.log("\x1b[90m", 'Anledning:', reason);
 }
 
 export { getCustomerData, updateContactInformation, escalateIssue, serviceStatus, schema };
